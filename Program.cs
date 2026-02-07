@@ -1,5 +1,6 @@
 using Adenawell_ValentinAP1_P1.Components;
 using Adenawell_ValentinAP1_P1.DAL;
+using Adenawell_ValentinAP1_P1.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,8 @@ builder.Services.AddRazorComponents()
 var ConStr = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlServer(ConStr));
+
+builder.Services.AddScoped<ViajesEspacialesServices>();
 
 var app = builder.Build();
 
