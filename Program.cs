@@ -1,10 +1,17 @@
 using Adenawell_ValentinAP1_P1.Components;
+using Adenawell_ValentinAP1_P1.DAL;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+
+var ConStr = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlServer(ConStr));
 
 var app = builder.Build();
 
