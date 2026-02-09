@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adenawell_ValentinAP1_P1.Services;
 
-public class ViajesEspacialesServices
+public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 {
 
-    public class ViajesEspacialesService(IDbContextFactory<Contexto> DbFactory)
-    {
+    
         public async Task<bool> Guardar()
         {
             return false;
@@ -40,10 +39,10 @@ public class ViajesEspacialesServices
             return false;
         }
 
-        public async Task<List<ViajesEspaciales>> Listar(Expression<Func<ViajesEspaciales, bool>> criterio)
+        public async Task<List<EntradasHuacales>> Listar(Expression<Func<EntradasHuacales, bool>> criterio)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.ViajesEspaciales.Where(criterio).AsNoTracking().ToListAsync();
+            return await contexto.EntradasHuacales.Where(criterio).AsNoTracking().ToListAsync();
         }
-    }
+    
 }

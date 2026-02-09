@@ -14,7 +14,7 @@ var ConStr = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlServer(ConStr));
 
-builder.Services.AddScoped<ViajesEspacialesServices>();
+builder.Services.AddScoped<EntradasHuacalesServices>();
 
 var app = builder.Build();
 
