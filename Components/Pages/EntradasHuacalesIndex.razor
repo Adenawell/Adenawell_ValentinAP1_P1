@@ -1,0 +1,72 @@
+﻿@page "/EntradaHuacales/Index"
+@using Microsoft.AspNetCore.Components.Authorization
+
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+@inject EntradasHuacalesServices entradasHuacalesServices
+
+<PageTitle>ENTRADA DE HUACALES</PageTitle>
+
+
+<div class="container">
+
+    <div class="card shadow-lg">
+
+        <div class="card-header d-flex justify-content-between align-items-end">
+            <label class="form-label fw-bold">ENTRADA HUACALES</label>
+            <button class="btn btn-outline-primary " @onclick="Crear">NUEVO HUACAL</button>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3 justify-content-between">
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Filtro</label>
+                    <select class="form-select" @bind="Filtro">
+                        <option value="Fecha">Fecha</option>
+                        <option value="NombreCliente">NombreCliente</option>
+                        <option value="Cantidad">Cantidad</option>
+                        <option value="Precio">Precio</option>
+                    </select>
+                </div>
+
+                <div class="col-md-10">
+                    <label class="form-label fw-bold">Buscar</label>
+                    <div class="input-group">
+                        <InputText class="form-control" @bind-Value="ValorFecha"></InputText>
+                        <button class="btn btn-outline-secondary">Buscar</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>IdEntrada</th>
+                            <th>Fecha</th>
+                            <th>NombreCliente</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<h3>EntradasHuacalesIndex</h3>
+
+@code {
+
+    public string Filtro { get; set; }
+    public string ValorFecha{ get; set; }
+    public List<EntradasHuacales> ListaHuacales { get; set; } = new List<EntradasHuacales>();
+
+    public async Task Crear()
+    {
+        
+    }
+}
