@@ -12,6 +12,8 @@ builder.Services.AddRazorComponents()
 
 var ConStr = builder.Configuration.GetConnectionString("DefaultConnection");
 
+
+
 builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlServer(ConStr));
 
 builder.Services.AddScoped<EntradasHuacalesServices>();
