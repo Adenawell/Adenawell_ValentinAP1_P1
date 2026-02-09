@@ -4,7 +4,6 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
-@inject IToastService toastService
 
 
 <PageTitle>ENTRADA DE HUACALES</PageTitle>
@@ -16,7 +15,7 @@
 
         <div class="card-header d-flex justify-content-between align-items-end">
             <label class="form-label fw-bold">ENTRADA HUACALES</label>
-            <button class="btn btn-outline-primary " @onclick="Crear">NUEVO HUACAL</button>
+            <button class="btn btn-outline-primary " @onclick="IrACrear">NUEVO HUACAL</button>
         </div>
 
         <div class="card-body">
@@ -36,7 +35,7 @@
                 <div class="col-md-10">
                     <label class="form-label fw-bold">Buscar</label>
                     <div class="input-group">
-                        <InputText class="form-control" @bind-Value="ValorFecha"></InputText>
+                        <InputText class="form-control" @bind-Value="ValorFiltro"></InputText>
                         <button class="btn btn-outline-secondary">Buscar</button>
                     </div>
                 </div>
@@ -57,18 +56,52 @@
                 </table>
             </div>
         </div>
+
+        <div class="card-footer">
+            <label>Total huacales : @ListaHuacales?.Count</label>
+        </div>
     </div>
 </div>
-<h3>EntradasHuacalesIndex</h3>
+
 
 @code {
 
     public string Filtro { get; set; }
-    public string ValorFecha{ get; set; }
+    public string ValorFiltro{ get; set; }
     public List<EntradasHuacales> ListaHuacales { get; set; } = new List<EntradasHuacales>();
 
-    public async Task Crear()
+
+    protected override async Task OnInitializedAsync()
     {
-        
+        ListaHuacales = await entradasHuacalesServices.Listar(e => e.IdEntrada > 0);
     }
+
+
+    public async Task Buscar()
+    {
+        if(ValorFiltro != null)
+        {
+            if(Filtro == "NombreCliente")
+            {
+                ListaHuacales = await entradasHuacalesServices.Listar(en => en.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
+            }
+
+            if (Filtro == "Fecha")
+            {
+
+            }
+
+            if(Filtro == " Precio")
+            {
+                if (int.TryParse(ValorFiltro, out int Precio))
+                {
+                    ListaHuacales = await entradasHuacalesServices.Listar(e => e.Precio == Precio);
+                }
+            }
+
+        }
+    }
+
+    public async Task IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");
+
 }

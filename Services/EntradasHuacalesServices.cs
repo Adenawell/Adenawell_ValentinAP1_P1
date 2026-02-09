@@ -26,7 +26,7 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 
         }
 
-        private async Task<bool> Existe(EntradasHuacales entradasHuacales)
+        public async Task<bool> Existe(EntradasHuacales entradasHuacales)
         {
           await using var contexto = await DbFactory.CreateDbContextAsync();
           return await contexto.EntradasHuacales.AnyAsync(e => e.IdEntrada == entradasHuacales.IdEntrada);
