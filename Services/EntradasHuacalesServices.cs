@@ -8,25 +8,26 @@ namespace Adenawell_ValentinAP1_P1.Services;
 public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 {
 
-    
-        public async Task<bool> Guardar(EntradasHuacales entradasHuacales)
-        {
-            if(await Existe(entradasHuacales))
-            {
-              return false;
-            }
-            if(!await Existe(entradasHuacales))
-            {
-              return await Insertar(entradasHuacales);
-            }
-           else
-           {
-             return await Modificar(entradasHuacales);
-           }
 
+    public async Task<bool> Guardar(EntradasHuacales entradasHuacales)
+    {
+        if (entradasHuacales.IdEntrada != 0)
+        {
+            return await Modificar(entradasHuacales);
         }
 
-        public async Task<bool> Existe(EntradasHuacales entradasHuacales)
+        else
+        {
+            if (await Existe(entradasHuacales))
+            {
+                return false; 
+            }
+
+            return await Insertar(entradasHuacales);
+        }
+    }
+
+    public async Task<bool> Existe(EntradasHuacales entradasHuacales)
         {
           await using var contexto = await DbFactory.CreateDbContextAsync();
           return await contexto.EntradasHuacales.AnyAsync(e => e.NombreCliente == entradasHuacales.NombreCliente);

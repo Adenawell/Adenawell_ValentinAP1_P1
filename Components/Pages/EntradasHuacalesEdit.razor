@@ -25,7 +25,7 @@
 
             <div class="card-header d-flex justify-content-between align-content-end">
                 <h5>Edicion de Huacales</h5>
-                <button class="btn btn-danger" >Eliminar Huacal</button>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar Huacal</button>
             </div>
 
             <div class="card-body">
@@ -59,7 +59,7 @@
             <div class="card-footer d-flex justify-content-between align-items-end">
                 <button type="button" class="btn-outline-secondary" @onclick="Volver">Volver</button>
 
-                <button type="submit" class="btn-outline-primary">Crear</button>
+                <button type="submit" class="btn-outline-primary">Guardar</button>
 
             </div>
         </div>
@@ -70,22 +70,36 @@
 @code {
 
     [Parameter]
-    public int IdEntrada { get; set; }
+    public int Huacal { get; set; }
 
     public string Mensajes { get; set; } = string.Empty;
 
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
 
-    public async Task Guardar()
+    protected override async Task OnInitializedAsync()
     {
-        if (await entradasHuacalesServices.Existe(EntradasHuacales))
+        var huacal = await entradasHuacalesServices.Listar(a => a.IdEntrada == Huacal);
+        if (huacal != null && huacal.Any())
         {
-            Mensajes = "Ya el estudiante existe";
+            EntradasHuacales = huacal.First();
         }
         else
         {
-            await entradasHuacalesServices.Guardar(EntradasHuacales);
             Volver();
+        }
+    }
+
+    public async Task Guardar()
+    {
+        var guardo = await entradasHuacalesServices.Guardar(EntradasHuacales);
+
+        if (guardo)
+        {
+            Volver();
+        }
+        else
+        {
+            Mensajes = "No se pudo guardar el registro.";
         }
     }
 
