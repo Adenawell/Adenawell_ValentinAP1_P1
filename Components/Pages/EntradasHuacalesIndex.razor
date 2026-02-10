@@ -69,7 +69,7 @@
                                     <td>@item.Cantidad</td>
                                     <td>@item.Precio</td>
                                     <td>
-                                        <button class="btn btn-outline-primary" @onclick="Editar">Editar</button>
+                                        <button class="btn btn-outline-primary" @onclick="() => IrAEditar(item.IdEntrada)">Editar</button>
                                     </td>
                                 </tr>
 
@@ -146,14 +146,13 @@
 
     public async Task IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");
 
-    public async Task IrAEditar(int id)
-    {
-
-        navigationManager.NavigateTo("/EntradasHuacales/Edit");
-    }
+    private void IrAEditar(int id) => navigationManager.NavigateTo($"/Estudiante/Edit/{id}");
 
     public async Task Editar() => navigationManager.NavigateTo("/EntradasHuacales/Edit/" + 1);
 
     public async Task Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
+
+                                            
+
 
 }
