@@ -36,7 +36,7 @@
                     <label class="form-label fw-bold">Buscar</label>
                     <div class="input-group">
                         <InputText class="form-control" @bind-Value="ValorFiltro"></InputText>
-                        <button class="btn btn-outline-secondary">Buscar</button>
+                        <button class="btn btn-outline-secondary" @onclick="Buscar">Buscar</button>
                     </div>
                 </div>
 
@@ -51,8 +51,32 @@
                             <th>NombreCliente</th>
                             <th>Cantidad</th>
                             <th>Precio</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
+
+                    <tbody>
+
+                        @if (ListaHuacales != null)
+                        {
+                            @foreach (var item in ListaHuacales)
+                            {
+
+                                <tr>
+                                    <td>@item.IdEntrada</td>
+                                    <td>@item.Fecha</td>
+                                    <td>@item.NombreCliente</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.Precio</td>
+                                    <td>
+                                        <button class="btn btn-outline-primary" @onclick="Editar">Editar</button>
+                                    </td>
+                                </tr>
+
+                            }
+                        }
+
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -60,6 +84,7 @@
         <div class="card-footer">
             <label>Total huacales : @ListaHuacales?.Count</label>
         </div>
+
     </div>
 </div>
 
@@ -67,31 +92,42 @@
 @code {
 
     public string Filtro { get; set; }
-    public string ValorFiltro{ get; set; }
+    public string ValorFiltro { get; set; }
     public List<EntradasHuacales> ListaHuacales { get; set; } = new List<EntradasHuacales>();
 
 
     protected override async Task OnInitializedAsync()
     {
-        ListaHuacales = await entradasHuacalesServices.Listar(e => e.IdEntrada > 0);
+        ListaHuacales = await entradasHuacalesServices.Listar(en => en.IdEntrada > 0);
     }
 
 
     public async Task Buscar()
     {
-        if(ValorFiltro != null)
+        if (ValorFiltro != null)
         {
-            if(Filtro == "NombreCliente")
+            if (Filtro == "NombreCliente")
             {
                 ListaHuacales = await entradasHuacalesServices.Listar(en => en.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
             }
 
             if (Filtro == "Fecha")
             {
-
+                if (DateOnly.TryParse(ValorFiltro, out DateOnly Fecha))
+                {
+                    ListaHuacales = await entradasHuacalesServices.Listar(e => e.Fecha == Fecha);
+                }
             }
 
-            if(Filtro == " Precio")
+            if (Filtro == "Cantidad")
+            {
+                if (int.TryParse(ValorFiltro, out int Cantidad))
+                {
+                    ListaHuacales = await entradasHuacalesServices.Listar(e => e.Cantidad == Cantidad);
+                }
+            }
+
+            if (Filtro == "Precio")
             {
                 if (int.TryParse(ValorFiltro, out int Precio))
                 {
@@ -99,9 +135,25 @@
                 }
             }
 
+
+
+        }
+        else
+        {
+            Volver();
         }
     }
 
     public async Task IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");
+
+    public async Task IrAEditar(int id)
+    {
+
+        navigationManager.NavigateTo("/EntradasHuacales/Edit");
+    }
+
+    public async Task Editar() => navigationManager.NavigateTo("/EntradasHuacales/Edit/" + 1);
+
+    public async Task Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
 
 }

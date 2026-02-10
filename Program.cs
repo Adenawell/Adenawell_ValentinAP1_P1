@@ -10,7 +10,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 
-var ConStr = builder.Configuration.GetConnectionString("DefaultConnection");
+var ConStr = builder.Configuration.GetConnectionString("SqlConStr");
 
 
 

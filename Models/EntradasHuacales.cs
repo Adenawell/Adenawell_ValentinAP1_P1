@@ -16,11 +16,11 @@ public class EntradasHuacales
 
     [Required(ErrorMessage = "El campo es obligatorio")]
     [Range(1, int.MaxValue, ErrorMessage ="Tiene que ser un valor positivo")]
-    public int Cantidad { get; set; }
+    public int? Cantidad { get; set; }
 
     [Required(ErrorMessage = "El campo es obligatorio")]
     [Range(1, double.MaxValue, ErrorMessage = "El campo debe ser un numero positivo")]
-    public double Precio { get; set; }
+    public double? Precio { get; set; }
 
 
 
