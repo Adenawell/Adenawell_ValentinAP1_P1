@@ -35,7 +35,14 @@
                 <div class="col-md-10">
                     <label class="form-label fw-bold">Buscar</label>
                     <div class="input-group">
-                        <InputText class="form-control" @bind-Value="ValorFiltro"></InputText>
+                        @if (Filtro == "Fecha")
+                        {
+                            <input type="date" class="form-control" value="@ValorFiltro" @onchange="@(e => ValorFiltro = e.Value?.ToString())" />
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control" @bind="ValorFiltro" placeholder="Escribe para buscar..." />
+                        }
                         <button class="btn btn-outline-secondary" @onclick="Buscar">Buscar</button>
                     </div>
                 </div>
@@ -91,7 +98,7 @@
 
 @code {
 
-    public string Filtro { get; set; }
+    public string Filtro { get; set; } = String.Empty;
     public string ValorFiltro { get; set; }
     public List<EntradasHuacales> ListaHuacales { get; set; } = new List<EntradasHuacales>();
 
@@ -146,7 +153,7 @@
 
     public async Task IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");
 
-    private void IrAEditar(int id) => navigationManager.NavigateTo($"/Estudiante/Edit/{id}");
+    private void IrAEditar(int id) => navigationManager.NavigateTo($"/EntradasHucales/Edit/{id}");
 
     public async Task Editar() => navigationManager.NavigateTo("/EntradasHuacales/Edit/" + 1);
 
