@@ -7,22 +7,18 @@ namespace Adenawell_ValentinAP1_P1.Services;
 
 public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 {
-   
-
     public async Task<bool> Guardar(EntradasHuacales entradasHuacales)
     {
         if (entradasHuacales.IdEntrada != 0)
         {
             return await Modificar(entradasHuacales);
         }
-
         else
         {
             if (await Existe(entradasHuacales))
             {
                 return false;
             }
-
             return await Insertar(entradasHuacales);
         }
     }
@@ -30,11 +26,6 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
     private async Task<bool> Insertar(EntradasHuacales entrada)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-
-        var tipo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
-        if (tipo != null)
-            tipo.Existencia += entrada.Cantidad ?? 0;
-
         contexto.EntradasHuacales.Add(entrada);
         return await contexto.SaveChangesAsync() > 0;
     }
@@ -42,29 +33,6 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
     private async Task<bool> Modificar(EntradasHuacales entrada)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-
-        var entradaAnterior = await contexto.EntradasHuacales
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.IdEntrada == entrada.IdEntrada);
-
-        if (entradaAnterior == null) return false;
-
-
-        var tipoAnterior = await contexto.TiposHuacales.FindAsync(entradaAnterior.TipoId);
-        if (tipoAnterior != null)
-        {
-            tipoAnterior.Existencia -= (entradaAnterior.Cantidad ?? 0);
-        }
-
-
-        var tipoNuevo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
-        if (tipoNuevo != null)
-        {
-            int nuevaExistencia = tipoNuevo.Existencia + (entrada.Cantidad ?? 0);
-
-            tipoNuevo.Existencia = nuevaExistencia < 0 ? 0 : nuevaExistencia;
-        }
-
         contexto.EntradasHuacales.Update(entrada);
         return await contexto.SaveChangesAsync() > 0;
     }
@@ -84,24 +52,10 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 
         if (entrada != null)
         {
-
-            var tipo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
-            if (tipo != null)
-            {
-                int resultado = tipo.Existencia - (entrada.Cantidad ?? 0);
-                tipo.Existencia = resultado < 0 ? 0 : resultado;
-            }
-
             contexto.EntradasHuacales.Remove(entrada);
             return await contexto.SaveChangesAsync() > 0;
         }
         return false;
-    }
-
-    public async Task<List<TiposHuacales>> GetTipos()
-    {
-        await using var contexto = await DbFactory.CreateDbContextAsync();
-        return await contexto.TiposHuacales.AsNoTracking().ToListAsync();
     }
 
     public async Task<EntradasHuacales?> Buscar(int id)

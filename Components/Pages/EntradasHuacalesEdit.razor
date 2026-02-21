@@ -19,8 +19,10 @@
 
         <div class="card shadow-lg">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Edición de Huacales</h5>
-                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar Huacal</button>
+                <h5 class="mb-0">Edición de Huacales</h5>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">
+                    <i class="bi bi-trash-fill"></i> Eliminar Huacal
+                </button>
             </div>
 
             <div class="card-body">
@@ -35,18 +37,6 @@
                         <label class="form-label fw-bold">Nombre Cliente</label>
                         <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente"></InputText>
                         <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)"></ValidationMessage>
-                    </div>
-
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label fw-bold">Tipo de Huacal</label>
-                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
-                            <option value="0" disabled>-- Seleccione un tipo --</option>
-                            @foreach (var tipo in ListaTipos)
-                            {
-                                <option value="@tipo.TipoId">@tipo.Descripcion</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)"></ValidationMessage>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -75,11 +65,9 @@
     [Parameter] public int Huacal { get; set; }
     public string Mensajes { get; set; } = string.Empty;
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
-    public List<TiposHuacales> ListaTipos { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        ListaTipos = await entradasHuacalesServices.GetTipos();
         var encontrado = await entradasHuacalesServices.Buscar(Huacal);
         
         if (encontrado != null)

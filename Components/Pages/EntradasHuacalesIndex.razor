@@ -6,6 +6,21 @@
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
 
+<style>
+    .table > :not(caption) > * > * {
+        border-bottom-width: 0 !important;
+        box-shadow: none !important;
+    }
+
+    thead {
+        border-bottom: 2px solid #dee2e6 !important;
+    }
+   
+    .table {
+        border-collapse: collapse !important;
+    }
+</style>
+
 <PageTitle>ENTRADA DE HUACALES</PageTitle>
 
 <div class="container mt-3">
@@ -52,29 +67,11 @@
                 </div>
             </div>
 
-
             <div class="table-responsive">
                 <QuickGrid Items="@ListaHuacales.AsQueryable()" Class="table table-hover table-striped align-middle" Pagination="@pagination">
                     <PropertyColumn Property="@(p => p.IdEntrada)" Title="ID" Sortable="true" />
                     <PropertyColumn Property="@(p => p.Fecha)" Title="Fecha" Sortable="true" Format="dd/MM/yyyy" />
                     <PropertyColumn Property="@(p => p.NombreCliente)" Title="Cliente" Sortable="true" />
-                    
-                    <TemplateColumn Title="Tipo de Huacal">
-
-                        @{
-                            var tipo = TiposList.FirstOrDefault(t => t.TipoId == context.TipoId);
-                            var descripcion = tipo?.Descripcion ?? "N/A";
-                            var color = descripcion.ToLower() switch
-                            {
-                                "rojo" => "bg-danger",
-                                "verde" => "bg-success",
-                                "amarillo" => "bg-warning text-dark",
-                                _ => "bg-secondary"
-                            };
-                        }
-                        <span class="badge @color">@descripcion</span>
-                    </TemplateColumn>
-
                     <PropertyColumn Property="@(p => p.Cantidad)" Title="Cantidad" Sortable="true" Format="N0" />
                     <PropertyColumn Property="@(p => p.Precio)" Title="Precio" Sortable="true" Format="N2" />
                     
@@ -90,7 +87,7 @@
         </div>
 
         <div class="card-footer d-flex justify-content-between align-items-center bg-light">
-            <span class="text-muted">Mostrando @ListaHuacales?.Count registros</span>
+            <label class="fw-bold">Cantidad de registros: @ListaHuacales?.Count</label>
             <Paginator State="@pagination" />
         </div>
     </div>
@@ -103,7 +100,6 @@
     public DateTime? Hasta { get; set; }
     
     public List<EntradasHuacales> ListaHuacales { get; set; } = new();
-    public List<TiposHuacales> TiposList { get; set; } = new();
     
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
@@ -115,7 +111,6 @@
     private async Task CargarDatos()
     {
         ListaHuacales = await entradasHuacalesServices.Listar(en => en.IdEntrada > 0);
-        TiposList = await entradasHuacalesServices.GetTipos();
     }
 
     public async Task Buscar()
@@ -147,14 +142,6 @@
         Desde = null;
         Hasta = null;
         await CargarDatos();
-    }
-
-    public async Task Eliminar(int id)
-    {
-        if (await entradasHuacalesServices.Eliminar(id))
-        {
-            await CargarDatos();
-        }
     }
 
     public void IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");

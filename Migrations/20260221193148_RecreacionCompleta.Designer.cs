@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260221171908_AgregandoTiposData")]
-    partial class AgregandoTiposData
+    [Migration("20260221193148_RecreacionCompleta")]
+    partial class RecreacionCompleta
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,35 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Adenawell_ValentinAP1_P1.Models.EntradasHuacales", b =>
+                {
+                    b.Property<int>("IdEntrada")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEntrada"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("Fecha")
+                        .HasColumnType("date");
+
+                    b.Property<string>("NombreCliente")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Precio")
+                        .HasColumnType("float");
+
+                    b.Property<int>("TipoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdEntrada");
+
+                    b.ToTable("EntradasHuacales");
+                });
 
             modelBuilder.Entity("Adenawell_ValentinAP1_P1.Models.TiposHuacales", b =>
                 {
@@ -63,35 +92,6 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                             Descripcion = "Amarillo",
                             Existencia = 0
                         });
-                });
-
-            modelBuilder.Entity("EntradasHuacales", b =>
-                {
-                    b.Property<int>("IdEntrada")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEntrada"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly>("Fecha")
-                        .HasColumnType("date");
-
-                    b.Property<string>("NombreCliente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Precio")
-                        .HasColumnType("float");
-
-                    b.Property<int>("TipoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdEntrada");
-
-                    b.ToTable("EntradasHuacales");
                 });
 #pragma warning restore 612, 618
         }

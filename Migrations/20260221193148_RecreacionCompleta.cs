@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     /// <inheritdoc />
-    public partial class AgregandoTiposData : Migration
+    public partial class RecreacionCompleta : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

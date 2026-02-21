@@ -19,7 +19,7 @@
 
         <div class="card shadow-lg">
             <div class="card-header">
-                <h5>Entradas de Huacales</h5>
+                <h5 class="mb-0">Entradas de Huacales</h5>
             </div>
 
             <div class="card-body">
@@ -35,17 +35,6 @@
                         <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)" />
                     </div>
 
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label fw-bold">Tipo de Huacal</label>
-                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
-                            <option value="0" disabled selected>-- Seleccione un tipo de huacal --</option>
-                            @foreach (var tipo in ListaTipos)
-                            {
-                                <option value="@tipo.TipoId">@tipo.Descripcion (Existencia: @tipo.Existencia)</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)" />
-                    </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Cantidad</label>
                         <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad" />
@@ -63,8 +52,8 @@
                 <button type="button" class="btn btn-outline-secondary" @onclick="Volver">
                     <i class="bi bi-arrow-left"></i> Volver
                 </button>
-                <button type="submit" class="btn btn-outline-primary">
-                    <i class="bi bi-floppy"></i> Crear
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-floppy"></i> Guardar Entrada
                 </button>
             </div>
         </div>
@@ -74,17 +63,15 @@
 @code {
     public string Mensajes { get; set; } = string.Empty;
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
-    public List<TiposHuacales> ListaTipos { get; set; } = new List<TiposHuacales>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        // Inicializamos con la fecha de hoy
         EntradasHuacales.Fecha = DateOnly.FromDateTime(DateTime.Now);
-        ListaTipos = await entradasHuacalesServices.GetTipos();
     }
 
     public async Task Guardar()
     {
-
         if (await entradasHuacalesServices.Existe(EntradasHuacales))
         {
             Mensajes = "Ya existe una entrada registrada para este cliente.";
