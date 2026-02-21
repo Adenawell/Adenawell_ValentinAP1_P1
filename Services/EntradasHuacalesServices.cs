@@ -49,11 +49,20 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 
         if (entradaAnterior == null) return false;
 
-        var tipo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
-        if (tipo != null)
-        {
 
-            tipo.Existencia = (tipo.Existencia - (entradaAnterior.Cantidad ?? 0)) + (entrada.Cantidad ?? 0);
+        var tipoAnterior = await contexto.TiposHuacales.FindAsync(entradaAnterior.TipoId);
+        if (tipoAnterior != null)
+        {
+            tipoAnterior.Existencia -= (entradaAnterior.Cantidad ?? 0);
+        }
+
+
+        var tipoNuevo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
+        if (tipoNuevo != null)
+        {
+            int nuevaExistencia = tipoNuevo.Existencia + (entrada.Cantidad ?? 0);
+
+            tipoNuevo.Existencia = nuevaExistencia < 0 ? 0 : nuevaExistencia;
         }
 
         contexto.EntradasHuacales.Update(entrada);
@@ -75,13 +84,18 @@ public class EntradasHuacalesServices(IDbContextFactory<Contexto> DbFactory)
 
         if (entrada != null)
         {
+
             var tipo = await contexto.TiposHuacales.FindAsync(entrada.TipoId);
             if (tipo != null)
-                tipo.Existencia -= entrada.Cantidad ?? 0;
+            {
+                int resultado = tipo.Existencia - (entrada.Cantidad ?? 0);
+                tipo.Existencia = resultado < 0 ? 0 : resultado;
+            }
 
             contexto.EntradasHuacales.Remove(entrada);
+            return await contexto.SaveChangesAsync() > 0;
         }
-        return await contexto.SaveChangesAsync() > 0;
+        return false;
     }
 
     public async Task<List<TiposHuacales>> GetTipos()
