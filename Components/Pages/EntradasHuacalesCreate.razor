@@ -1,92 +1,104 @@
 ﻿@page "/EntradasHuacales/Create"
-
-
 @rendermode InteractiveServer
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
 
-<PageTitle>CREACION DE NUEVO HUACAL</PageTitle>
+<PageTitle>CREACIÓN DE NUEVO HUACAL</PageTitle>
 
 <EditForm Model="EntradasHuacales" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <DataAnnotationsValidator />
 
     <div class="container">
-
         @if (!string.IsNullOrEmpty(Mensajes))
         {
             <div class="alert alert-danger alert-dismissible">
-                <label></label> @Mensajes
-                <button class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
+                @Mensajes
+                <button type="button" class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
             </div>
-
         }
 
         <div class="card shadow-lg">
-
             <div class="card-header">
                 <h5>Entradas de Huacales</h5>
             </div>
 
             <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha</label>
+                        <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha" />
+                        <ValidationMessage For="@(() => EntradasHuacales.Fecha)" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nombre Cliente</label>
+                        <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente" />
+                        <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)" />
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Fecha</label>
-                    <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha"></InputDate>
-                    <ValidationMessage For="@(() => EntradasHuacales.Fecha)"></ValidationMessage>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Tipo de Huacal</label>
+                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
+                            <option value="0" disabled selected>-- Seleccione un tipo de huacal --</option>
+                            @foreach (var tipo in ListaTipos)
+                            {
+                                <option value="@tipo.TipoId">@tipo.Descripcion (Existencia: @tipo.Existencia)</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Cantidad</label>
+                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad" />
+                        <ValidationMessage For="@(() => EntradasHuacales.Cantidad)" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Precio</label>
+                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio" />
+                        <ValidationMessage For="@(() => EntradasHuacales.Precio)" />
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">NombreCliente</label>
-                    <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente"></InputText>
-                    <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)"></ValidationMessage>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Cantidad</label>
-                    <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad"></InputNumber>
-                    <ValidationMessage For="@(() => EntradasHuacales.Cantidad)"></ValidationMessage>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Precio</label>
-                    <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio"></InputNumber>
-                    <ValidationMessage For="@(() => EntradasHuacales.Precio)"></ValidationMessage>
-                </div>
-
             </div>
 
-            <div class="card-footer d-flex justify-content-between align-items-end">
-                <button type="button" class="btn-outline-secondary" @onclick="Volver">Volver</button>
-
-                <button type="submit" class="btn-outline-primary">Crear</button>
-
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" @onclick="Volver">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </button>
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-floppy"></i> Crear
+                </button>
             </div>
         </div>
     </div>
 </EditForm>
 
-
 @code {
-
     public string Mensajes { get; set; } = string.Empty;
-
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
+    public List<TiposHuacales> ListaTipos { get; set; } = new List<TiposHuacales>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         EntradasHuacales.Fecha = DateOnly.FromDateTime(DateTime.Now);
+        ListaTipos = await entradasHuacalesServices.GetTipos();
     }
 
     public async Task Guardar()
     {
+
         if (await entradasHuacalesServices.Existe(EntradasHuacales))
         {
-            Mensajes = "Ya esta entrada de huacal registrada existe";
+            Mensajes = "Ya existe una entrada registrada para este cliente.";
+            return;
+        }
+
+        var guardo = await entradasHuacalesServices.Guardar(EntradasHuacales);
+        if (guardo)
+        {
+            Volver();
         }
         else
         {
-            await entradasHuacalesServices.Guardar(EntradasHuacales);
-            Volver();
+            Mensajes = "No se pudo guardar el registro.";
         }
     }
 
