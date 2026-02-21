@@ -6,38 +6,30 @@
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
 
-<style>
-    .table tbody tr:has(td:empty) {
-        display: none;
-    }
-</style>
-
 <PageTitle>ENTRADA DE HUACALES</PageTitle>
 
-<div class="container">
+<div class="container mt-3">
     <div class="card shadow-lg">
-        <div class="card-header d-flex justify-content-between align-items-end">
-            <label class="form-label fw-bold">ENTRADA HUACALES</label>
-            <button class="btn btn-outline-primary" @onclick="IrACrear">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold">Entradas de Huacales</h4>
+            <button class="btn btn-primary" @onclick="IrACrear">
                 <i class="bi bi-plus-circle me-1"></i> Crear
             </button>
         </div>
 
         <div class="card-body">
-            <div class="row mb-3 justify-content-between">
+            <div class="row mb-4 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Filtro</label>
+                    <label class="form-label fw-bold">Filtrar por:</label>
                     <select class="form-select" @bind="Filtro">
                         <option value="">Seleccione un filtro</option>
                         <option value="Fecha">Fecha</option>
-                        <option value="NombreCliente">NombreCliente</option>
+                        <option value="NombreCliente">Nombre del Cliente</option>
                         <option value="Cantidad">Cantidad</option>
-                        <option value="Precio">Precio</option>
                     </select>
                 </div>
 
                 <div class="col-md-9">
-                    <label class="form-label fw-bold">Buscar</label>
                     <div class="input-group">
                         @if (Filtro == "Fecha")
                         {
@@ -48,40 +40,58 @@
                         }
                         else
                         {
-                            <input type="text" class="form-control" @bind="ValorFiltro" placeholder="Escribe para buscar..." />
+                            <input type="text" class="form-control" @bind="ValorFiltro" placeholder="Escriba su búsqueda..." />
                         }
                         <button class="btn btn-outline-secondary" @onclick="Buscar">
-                            <i class="bi bi-search me-1"></i> Buscar
+                            <i class="bi bi-search"></i> Buscar
                         </button>
-                        <button class="btn btn-outline-danger ms-2" @onclick="Limpiar">
-                            <i class="bi bi-eraser-fill me-1"></i> Limpiar
+                        <button class="btn btn-outline-danger" @onclick="Limpiar">
+                            <i class="bi bi-eraser-fill"></i> Limpiar
                         </button>
                     </div>
                 </div>
             </div>
 
+
             <div class="table-responsive">
-                <QuickGrid Items="@ListaHuacales.AsQueryable()" Class="table table-hover" Pagination="@pagination">
-                    <PropertyColumn Property="@(p => p.IdEntrada)" Title="IdEntrada" Sortable="true" />
+                <QuickGrid Items="@ListaHuacales.AsQueryable()" Class="table table-hover table-striped align-middle" Pagination="@pagination">
+                    <PropertyColumn Property="@(p => p.IdEntrada)" Title="ID" Sortable="true" />
                     <PropertyColumn Property="@(p => p.Fecha)" Title="Fecha" Sortable="true" Format="dd/MM/yyyy" />
-                    <PropertyColumn Property="@(p => p.NombreCliente)" Title="NombreCliente" Sortable="true" />
+                    <PropertyColumn Property="@(p => p.NombreCliente)" Title="Cliente" Sortable="true" />
+                    
+                    <TemplateColumn Title="Tipo de Huacal">
+
+                        @{
+                            var tipo = TiposList.FirstOrDefault(t => t.TipoId == context.TipoId);
+                            var descripcion = tipo?.Descripcion ?? "N/A";
+                            var color = descripcion.ToLower() switch
+                            {
+                                "rojo" => "bg-danger",
+                                "verde" => "bg-success",
+                                "amarillo" => "bg-warning text-dark",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @color">@descripcion</span>
+                    </TemplateColumn>
+
                     <PropertyColumn Property="@(p => p.Cantidad)" Title="Cantidad" Sortable="true" Format="N0" />
                     <PropertyColumn Property="@(p => p.Precio)" Title="Precio" Sortable="true" Format="N2" />
-                    <TemplateColumn Title="Acciones">
-                        <button class="btn btn-outline-primary" @onclick="() => IrAEditar(context.IdEntrada)">
-                            <i class="bi bi-pencil-square me-1"></i> Editar
-                        </button>
+                    
+                    <TemplateColumn Title="Opciones">
+                        <div class="text-center">
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => IrAEditar(context.IdEntrada)" title="Editar">
+                                <i class="bi bi-pencil-square me-1"></i> Editar
+                            </button>
+                        </div>
                     </TemplateColumn>
                 </QuickGrid>
             </div>
         </div>
 
-        <div class="card-footer d-flex justify-content-between align-items-center">
-            <label class="mb-0">Total Registros: @ListaHuacales?.Count.ToString("N0")</label>
-            <Paginator State="@pagination">
-                <SummaryTemplate>
-                </SummaryTemplate>
-            </Paginator>
+        <div class="card-footer d-flex justify-content-between align-items-center bg-light">
+            <span class="text-muted">Mostrando @ListaHuacales?.Count registros</span>
+            <Paginator State="@pagination" />
         </div>
     </div>
 </div>
@@ -91,12 +101,21 @@
     public string ValorFiltro { get; set; } = string.Empty;
     public DateTime? Desde { get; set; }
     public DateTime? Hasta { get; set; }
-    public List<EntradasHuacales> ListaHuacales { get; set; } = new List<EntradasHuacales>();
+    
+    public List<EntradasHuacales> ListaHuacales { get; set; } = new();
+    public List<TiposHuacales> TiposList { get; set; } = new();
+    
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
     protected override async Task OnInitializedAsync()
     {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
         ListaHuacales = await entradasHuacalesServices.Listar(en => en.IdEntrada > 0);
+        TiposList = await entradasHuacalesServices.GetTipos();
     }
 
     public async Task Buscar()
@@ -107,28 +126,13 @@
             DateOnly fechaHasta = DateOnly.FromDateTime(Hasta.Value);
             ListaHuacales = await entradasHuacalesServices.Listar(e => e.Fecha >= fechaDesde && e.Fecha <= fechaHasta);
         }
-        else if (ValorFiltro != null)
+        else if (!string.IsNullOrEmpty(ValorFiltro))
         {
             if (Filtro == "NombreCliente")
-            {
                 ListaHuacales = await entradasHuacalesServices.Listar(en => en.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
-            }
 
-            if (Filtro == "Cantidad")
-            {
-                if (int.TryParse(ValorFiltro, out int Cantidad))
-                {
-                    ListaHuacales = await entradasHuacalesServices.Listar(e => e.Cantidad == Cantidad);
-                }
-            }
-
-            if (Filtro == "Precio")
-            {
-                if (int.TryParse(ValorFiltro, out int Precio))
-                {
-                    ListaHuacales = await entradasHuacalesServices.Listar(e => e.Precio == Precio);
-                }
-            }
+            if (Filtro == "Cantidad" && int.TryParse(ValorFiltro, out int cant))
+                ListaHuacales = await entradasHuacalesServices.Listar(e => e.Cantidad == cant);
         }
         else
         {
@@ -142,12 +146,17 @@
         ValorFiltro = string.Empty;
         Desde = null;
         Hasta = null;
-        ListaHuacales = await entradasHuacalesServices.Listar(en => en.IdEntrada > 0);
+        await CargarDatos();
+    }
+
+    public async Task Eliminar(int id)
+    {
+        if (await entradasHuacalesServices.Eliminar(id))
+        {
+            await CargarDatos();
+        }
     }
 
     public void IrACrear() => navigationManager.NavigateTo("/EntradasHuacales/Create");
-
     private void IrAEditar(int id) => navigationManager.NavigateTo($"/EntradasHuacales/Edit/{id}");
-
-    public void Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
 }
