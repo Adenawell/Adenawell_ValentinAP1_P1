@@ -72,10 +72,16 @@
 
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
 
+    protected override void OnInitialized()
+    {
+        EntradasHuacales.Fecha = DateOnly.FromDateTime(DateTime.Now);
+    }
+
     public async Task Guardar()
     {
-        if(await entradasHuacalesServices.Existe(EntradasHuacales)){
-            Mensajes = "Ya este entrada de huacal se registro existe";
+        if (await entradasHuacalesServices.Existe(EntradasHuacales))
+        {
+            Mensajes = "Ya esta entrada de huacal registrada existe";
         }
         else
         {
@@ -84,7 +90,5 @@
         }
     }
 
-    public async Task Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
-
-    
+    public void Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
 }
