@@ -11,11 +11,9 @@
         border-bottom-width: 0 !important;
         box-shadow: none !important;
     }
-
     thead {
         border-bottom: 2px solid #dee2e6 !important;
     }
-   
     .table {
         border-collapse: collapse !important;
     }
@@ -33,35 +31,33 @@
         </div>
 
         <div class="card-body">
-            <div class="row mb-4 align-items-end">
+            <div class="row mb-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Filtrar por:</label>
-                    <select class="form-select" @bind="Filtro">
-                        <option value="">Seleccione un filtro</option>
-                        <option value="Fecha">Fecha</option>
+                    <select class="form-select" @bind="FiltroActivo">
                         <option value="NombreCliente">Nombre del Cliente</option>
-                        <option value="Cantidad">Cantidad</option>
                     </select>
                 </div>
 
-                <div class="col-md-9">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Rango de Fechas:</label>
                     <div class="input-group">
-                        @if (Filtro == "Fecha")
-                        {
-                            <span class="input-group-text">Desde</span>
-                            <input type="date" class="form-control" @bind="Desde" />
-                            <span class="input-group-text">Hasta</span>
-                            <input type="date" class="form-control" @bind="Hasta" />
-                        }
-                        else
-                        {
-                            <input type="text" class="form-control" @bind="ValorFiltro" placeholder="Escriba su búsqueda..." />
-                        }
-                        <button class="btn btn-outline-secondary" @onclick="Buscar">
-                            <i class="bi bi-search"></i> Buscar
+                        <span class="input-group-text">Desde</span>
+                        <input type="date" class="form-control" @bind="Desde" />
+                        <span class="input-group-text">Hasta</span>
+                        <input type="date" class="form-control" @bind="Hasta" />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Búsqueda:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind="ValorFiltro" placeholder="Escriba aquí..." />
+                        <button class="btn btn-primary" @onclick="Buscar">
+                            <i class="bi bi-search"></i>
                         </button>
                         <button class="btn btn-outline-danger" @onclick="Limpiar">
-                            <i class="bi bi-eraser-fill"></i> Limpiar
+                            <i class="bi bi-eraser-fill"></i>
                         </button>
                     </div>
                 </div>
@@ -94,13 +90,12 @@
 </div>
 
 @code {
-    public string Filtro { get; set; } = string.Empty;
+    public string FiltroActivo { get; set; } = string.Empty;
     public string ValorFiltro { get; set; } = string.Empty;
     public DateTime? Desde { get; set; }
     public DateTime? Hasta { get; set; }
     
     public List<EntradasHuacales> ListaHuacales { get; set; } = new();
-    
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
 
     protected override async Task OnInitializedAsync()
@@ -115,29 +110,26 @@
 
     public async Task Buscar()
     {
-        if (Filtro == "Fecha" && Desde.HasValue && Hasta.HasValue)
-        {
-            DateOnly fechaDesde = DateOnly.FromDateTime(Desde.Value);
-            DateOnly fechaHasta = DateOnly.FromDateTime(Hasta.Value);
-            ListaHuacales = await entradasHuacalesServices.Listar(e => e.Fecha >= fechaDesde && e.Fecha <= fechaHasta);
-        }
-        else if (!string.IsNullOrEmpty(ValorFiltro))
-        {
-            if (Filtro == "NombreCliente")
-                ListaHuacales = await entradasHuacalesServices.Listar(en => en.NombreCliente.ToLower().Contains(ValorFiltro.ToLower()));
+        var consulta = await entradasHuacalesServices.Listar(e => true);
 
-            if (Filtro == "Cantidad" && int.TryParse(ValorFiltro, out int cant))
-                ListaHuacales = await entradasHuacalesServices.Listar(e => e.Cantidad == cant);
-        }
-        else
+
+        if (Desde.HasValue && Hasta.HasValue)
         {
-            await Limpiar();
+            var fechaDesde = DateOnly.FromDateTime(Desde.Value);
+            var fechaHasta = DateOnly.FromDateTime(Hasta.Value);
+            consulta = consulta.Where(e => e.Fecha >= fechaDesde && e.Fecha <= fechaHasta).ToList();
         }
+
+        if (FiltroActivo == "NombreCliente" && !string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            consulta = consulta.Where(e => e.NombreCliente.Contains(ValorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        ListaHuacales = consulta;
     }
 
     public async Task Limpiar()
     {
-        Filtro = string.Empty;
         ValorFiltro = string.Empty;
         Desde = null;
         Hasta = null;

@@ -14,9 +14,6 @@ public class EntradasHuacales
     public string NombreCliente { get; set; } = string.Empty;
 
 
-    [Required(ErrorMessage = "Debe seleccionar un tipo de huacal")]
-    public int TipoId { get; set; }
-
     [Required(ErrorMessage = "El campo es obligatorio")]
     [Range(1, int.MaxValue, ErrorMessage = "Tiene que ser un valor positivo")]
     public int? Cantidad { get; set; }
