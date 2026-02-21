@@ -1,9 +1,7 @@
 ﻿@page "/EntradasHuacales/Edit/{Huacal:int}"
-
 @rendermode InteractiveServer
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
-
 
 <PageTitle>Editar Entradas Huacales</PageTitle>
 
@@ -11,111 +9,106 @@
     <DataAnnotationsValidator></DataAnnotationsValidator>
 
     <div class="container">
-
         @if (!string.IsNullOrEmpty(Mensajes))
         {
             <div class="alert alert-danger alert-dismissible">
-                <label></label> @Mensajes
-                <button class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
+                @Mensajes
+                <button type="button" class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
             </div>
-
         }
 
         <div class="card shadow-lg">
-
-            <div class="card-header d-flex justify-content-between align-content-end">
-                <h5>Edicion de Huacales</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Edición de Huacales</h5>
                 <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar Huacal</button>
             </div>
 
             <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha</label>
+                        <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha"></InputDate>
+                        <ValidationMessage For="@(() => EntradasHuacales.Fecha)"></ValidationMessage>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Fecha</label>
-                    <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha"></InputDate>
-                    <ValidationMessage For="@(() => EntradasHuacales.Fecha)"></ValidationMessage>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nombre Cliente</label>
+                        <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente"></InputText>
+                        <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)"></ValidationMessage>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Tipo de Huacal</label>
+                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
+                            <option value="0" disabled>-- Seleccione un tipo --</option>
+                            @foreach (var tipo in ListaTipos)
+                            {
+                                <option value="@tipo.TipoId">@tipo.Descripcion</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)"></ValidationMessage>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Cantidad</label>
+                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad"></InputNumber>
+                        <ValidationMessage For="@(() => EntradasHuacales.Cantidad)"></ValidationMessage>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Precio</label>
+                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio"></InputNumber>
+                        <ValidationMessage For="@(() => EntradasHuacales.Precio)"></ValidationMessage>
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">NombreCliente</label>
-                    <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente"></InputText>
-                    <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)"></ValidationMessage>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Cantidad</label>
-                    <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad"></InputNumber>
-                    <ValidationMessage For="@(() => EntradasHuacales.Cantidad)"></ValidationMessage>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Precio</label>
-                    <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio"></InputNumber>
-                    <ValidationMessage For="@(() => EntradasHuacales.Precio)"></ValidationMessage>
-                </div>
-
             </div>
 
-            <div class="card-footer d-flex justify-content-between align-items-end">
-                <button type="button" class="btn-outline-secondary" @onclick="Volver">Volver</button>
-
-                <button type="submit" class="btn-outline-primary">Guardar</button>
-
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" @onclick="Volver">Volver</button>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </EditForm>
 
-
 @code {
-
-    [Parameter]
-    public int Huacal { get; set; }
-
+    [Parameter] public int Huacal { get; set; }
     public string Mensajes { get; set; } = string.Empty;
-
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
+    public List<TiposHuacales> ListaTipos { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var huacal = await entradasHuacalesServices.Listar(a => a.IdEntrada == Huacal);
-        if (huacal != null && huacal.Any())
-        {
-            EntradasHuacales = huacal.First();
-        }
+        ListaTipos = await entradasHuacalesServices.GetTipos();
+        var encontrado = await entradasHuacalesServices.Buscar(Huacal);
+        
+        if (encontrado != null)
+            EntradasHuacales = encontrado;
         else
-        {
             Volver();
-        }
     }
 
     public async Task Guardar()
     {
-        var guardo = await entradasHuacalesServices.Guardar(EntradasHuacales);
+        if (await entradasHuacalesServices.Existe(EntradasHuacales))
+        {
+            Mensajes = "Ya existe otro registro con este nombre de cliente.";
+            return;
+        }
 
-        if (guardo)
-        {
+        if (await entradasHuacalesServices.Guardar(EntradasHuacales))
             Volver();
-        }
         else
-        {
             Mensajes = "No se pudo guardar el registro.";
-        }
     }
 
     public async Task Eliminar()
     {
-        var eliminado = await entradasHuacalesServices.Eliminar(EntradasHuacales);
-
-        if (eliminado)
-        {
+        if (await entradasHuacalesServices.Eliminar(EntradasHuacales.IdEntrada))
             Volver();
-        }
         else
-        {
-            Mensajes = "No se ha podido eliminar";
-        }
+            Mensajes = "No se ha podido eliminar el registro.";
     }
 
-    public async Task Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
+    public void Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
 }
