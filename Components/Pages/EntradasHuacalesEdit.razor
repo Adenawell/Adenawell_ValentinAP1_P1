@@ -3,69 +3,112 @@
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
 
-<PageTitle>Editar Entradas Huacales</PageTitle>
+<PageTitle>Editar Huacal</PageTitle>
 
 <EditForm Model="EntradasHuacales" OnValidSubmit="Guardar">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <DataAnnotationsValidator />
 
-    <div class="container">
+    <div class="container mt-4">
         @if (!string.IsNullOrEmpty(Mensajes))
         {
-            <div class="alert alert-danger alert-dismissible">
+            <div class="alert alert-danger alert-dismissible mb-3">
                 @Mensajes
                 <button type="button" class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
             </div>
         }
 
-        <div class="card shadow-lg">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Edición de Huacales</h5>
-                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar Huacal</button>
+        <div class="card shadow-sm border-1">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-dark">Editar Huacal</h5>
+                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="Eliminar">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
             </div>
 
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Fecha</label>
-                        <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha"></InputDate>
-                        <ValidationMessage For="@(() => EntradasHuacales.Fecha)"></ValidationMessage>
-                    </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Nombre Cliente</label>
-                        <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente"></InputText>
-                        <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)"></ValidationMessage>
-                    </div>
-
+                <div class="row mb-3">
                     <div class="col-md-12 mb-3">
-                        <label class="form-label fw-bold">Tipo de Huacal</label>
-                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
-                            <option value="0" disabled>-- Seleccione un tipo --</option>
+                        <label class="form-label small">Fecha</label>
+                        <InputDate class="form-control form-control-sm" @bind-Value="EntradasHuacales.Fecha" />
+                        <ValidationMessage For="@(() => EntradasHuacales.Fecha)" />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small">Nombre Cliente</label>
+                        <InputText class="form-control form-control-sm" @bind-Value="EntradasHuacales.NombreCliente" />
+                        <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)" />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+
+                <h5 class="mb-3">Hucales del CLiente</h5>
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Tipo de Huacal</label>
+                        <InputSelect class="form-select form-select-sm" @bind-Value="Detalle.TipoId">
+                            <option value="0">Seleccione un Tipo de</option>
                             @foreach (var tipo in ListaTipos)
                             {
                                 <option value="@tipo.TipoId">@tipo.Descripcion</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)"></ValidationMessage>
                     </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Cantidad</label>
+                        <InputNumber class="form-control form-control-sm" @bind-Value="Detalle.Cantidad" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Precio</label>
+                        <InputNumber class="form-control form-control-sm" @bind-Value="Detalle.Precio" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary w-100" @onclick="AgregarDetalle">
+                            <i class="bi bi-plus"></i>Agregar
+                        </button>
+                    </div>
+                </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Cantidad</label>
-                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad"></InputNumber>
-                        <ValidationMessage For="@(() => EntradasHuacales.Cantidad)"></ValidationMessage>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Precio</label>
-                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio"></InputNumber>
-                        <ValidationMessage For="@(() => EntradasHuacales.Precio)"></ValidationMessage>
-                    </div>
+                <div class="table-responsive border rounded">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light text-dark">
+                            <tr>
+                                <th>IdEntrada</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in EntradasHuacales.EntradasDetalle)
+                            {
+                                <tr>
+                                    <td>@item.TipoId</td>
+                                    <td>@ObtenerDescripcion(item.TipoId)</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.Precio.ToString("N2")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0" @onclick="() => EliminarDetalle(item)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary" @onclick="Volver">Volver</button>
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+
+            <div class="card-footer bg-light d-flex justify-content-center gap-2 py-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary px-4" @onclick="Volver">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </button>
+                <button type="submit" class="btn btn-sm btn-outline-primary px-4">
+                    <i class="bi bi-download"></i>Guardar
+                </button>
             </div>
         </div>
     </div>
@@ -75,6 +118,7 @@
     [Parameter] public int Huacal { get; set; }
     public string Mensajes { get; set; } = string.Empty;
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
+    public DetallesHuacales Detalle { get; set; } = new DetallesHuacales();
     public List<TiposHuacales> ListaTipos { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
@@ -88,18 +132,57 @@
             Volver();
     }
 
-    public async Task Guardar()
+    private void AgregarDetalle()
     {
-        if (await entradasHuacalesServices.Existe(EntradasHuacales))
+        Mensajes = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(EntradasHuacales.NombreCliente))
         {
-            Mensajes = "Ya existe otro registro con este nombre de cliente.";
+            Mensajes = "Debe escribir el Nombre del Cliente antes de agregar un huacal.";
             return;
         }
 
+        if (Detalle.TipoId <= 0)
+        {
+            Mensajes = "Debe seleccionar un tipo de huacal.";
+            return;
+        }
+        if (Detalle.Cantidad <= 0)
+        {
+            Mensajes = "La cantidad debe ser mayor a cero.";
+            return;
+        }
+
+
+        bool Existe = EntradasHuacales.EntradasDetalle.Any(a => a.TipoId == Detalle.TipoId);
+
+        if (Existe)
+        {
+            Mensajes = "Ya existe un huacal de este tipo en la lista.";
+            return;
+        }
+
+
+        EntradasHuacales.EntradasDetalle.Add(new DetallesHuacales
+        {
+            TipoId = Detalle.TipoId,
+            Cantidad = Detalle.Cantidad,
+            Precio = Detalle.Precio
+        });
+
+        Detalle = new DetallesHuacales();
+    }
+
+    private void EliminarDetalle(DetallesHuacales item) => EntradasHuacales.EntradasDetalle.Remove(item);
+
+    private string ObtenerDescripcion(int id) => ListaTipos.FirstOrDefault(t => t.TipoId == id)?.Descripcion ?? "N/A";
+
+    public async Task Guardar()
+    {
         if (await entradasHuacalesServices.Guardar(EntradasHuacales))
             Volver();
         else
-            Mensajes = "No se pudo guardar el registro.";
+            Mensajes = "No se pudo actualizar el registro.";
     }
 
     public async Task Eliminar()
