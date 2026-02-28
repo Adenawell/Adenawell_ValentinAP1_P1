@@ -3,68 +3,109 @@
 @inject NavigationManager navigationManager
 @inject EntradasHuacalesServices entradasHuacalesServices
 
-<PageTitle>CREACIÓN DE NUEVO HUACAL</PageTitle>
+<PageTitle>Crear Huacal</PageTitle>
 
 <EditForm Model="EntradasHuacales" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
 
-    <div class="container">
-        @if (!string.IsNullOrEmpty(Mensajes))
-        {
-            <div class="alert alert-danger alert-dismissible">
-                @Mensajes
-                <button type="button" class="btn-close" @onclick="() => Mensajes = string.Empty"></button>
-            </div>
-        }
+    <div class="container mt-4">
+        <div class="card shadow-sm border-1">
 
-        <div class="card shadow-lg">
-            <div class="card-header">
-                <h5>Entradas de Huacales</h5>
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 text-dark">Crear Huacal</h5>
             </div>
 
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Fecha</label>
-                        <InputDate class="form-control" @bind-Value="EntradasHuacales.Fecha" />
+                <div class="row mb-3">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label small">Fecha</label>
+                        <InputDate class="form-control form-control-sm" @bind-Value="EntradasHuacales.Fecha" />
                         <ValidationMessage For="@(() => EntradasHuacales.Fecha)" />
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Nombre Cliente</label>
-                        <InputText class="form-control" @bind-Value="EntradasHuacales.NombreCliente" />
+                    <div class="col-md-12">
+                        <label class="form-label small">Nombre Cliente</label>
+                        <InputText class="form-control form-control-sm" @bind-Value="EntradasHuacales.NombreCliente" />
                         <ValidationMessage For="@(() => EntradasHuacales.NombreCliente)" />
                     </div>
+                </div>
 
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label fw-bold">Tipo de Huacal</label>
-                        <InputSelect class="form-select" @bind-Value="EntradasHuacales.TipoId">
-                            <option value="0" disabled selected>-- Seleccione un tipo de huacal --</option>
+                <hr class="my-4" />
+
+ 
+                <h5 class="mb-3">Hucales del Cliente</h5>
+
+                @if (!string.IsNullOrEmpty(MensajeErrorDetalle))
+                {
+                    <div class="alert alert-warning py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i> @MensajeErrorDetalle
+                    </div>
+                }
+
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Tipo de Huacal</label>
+                        <InputSelect class="form-select form-select-sm" @bind-Value="Detalle.TipoId">
+                            <option value="0">Seleccione un Tipo de</option>
                             @foreach (var tipo in ListaTipos)
                             {
-                                <option value="@tipo.TipoId">@tipo.Descripcion (Existencia: @tipo.Existencia)</option>
+                                <option value="@tipo.TipoId">@tipo.Descripcion</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => EntradasHuacales.TipoId)" />
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Cantidad</label>
-                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Cantidad" />
-                        <ValidationMessage For="@(() => EntradasHuacales.Cantidad)" />
+                    <div class="col-md-3">
+                        <label class="form-label small">Cantidad</label>
+                        <InputNumber class="form-control form-control-sm" @bind-Value="Detalle.Cantidad" />
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Precio</label>
-                        <InputNumber class="form-control" @bind-Value="EntradasHuacales.Precio" />
-                        <ValidationMessage For="@(() => EntradasHuacales.Precio)" />
+                    <div class="col-md-3">
+                        <label class="form-label small">Precio</label>
+                        <InputNumber class="form-control form-control-sm" @bind-Value="Detalle.Precio" />
                     </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary w-100" @onclick="AgregarDetalle">
+                            <i class="bi bi-plus"></i>Agregar
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="table-responsive border rounded">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>IdEntrada</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in EntradasHuacales.EntradasDetalle)
+                            {
+                                <tr>
+                                    <td>@item.TipoId</td>
+                                    <td>@ObtenerDescripcion(item.TipoId)</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.Precio.ToString("N2")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0" @onclick="() => EliminarDetalle(item)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary" @onclick="Volver">
+
+            <div class="card-footer bg-light d-flex justify-content-center gap-2 py-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary px-4" @onclick="Volver">
                     <i class="bi bi-arrow-left"></i> Volver
                 </button>
-                <button type="submit" class="btn btn-outline-primary">
-                    <i class="bi bi-floppy"></i> Crear
+                <button type="submit" class="btn btn-sm btn-outline-primary px-4">
+                    <i class="bi bi-download"></i>Guardar
                 </button>
             </div>
         </div>
@@ -72,9 +113,10 @@
 </EditForm>
 
 @code {
-    public string Mensajes { get; set; } = string.Empty;
     public EntradasHuacales EntradasHuacales { get; set; } = new EntradasHuacales();
+    public DetallesHuacales? Detalle { get; set; } = new DetallesHuacales();
     public List<TiposHuacales> ListaTipos { get; set; } = new List<TiposHuacales>();
+    public string MensajeErrorDetalle { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,24 +124,73 @@
         ListaTipos = await entradasHuacalesServices.GetTipos();
     }
 
+
+    private async Task AgregarDetalle()
+    {
+        MensajeErrorDetalle = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(EntradasHuacales.NombreCliente))
+        {
+            MensajeErrorDetalle = "Debe escribir el Nombre del Cliente antes de agregar un huacal.";
+            return;
+        }
+
+        if (Detalle.TipoId <= 0)
+        {
+            MensajeErrorDetalle = "Debe seleccionar un tipo de huacal.";
+            return;
+        }
+        if (Detalle.Cantidad <= 0)
+        {
+            MensajeErrorDetalle = "La cantidad debe ser mayor a cero.";
+            return;
+        }
+
+
+        bool Existe = EntradasHuacales.EntradasDetalle.Any(a => a.TipoId == Detalle.TipoId);
+
+        if (Existe)
+        {
+            MensajeErrorDetalle = "Ya existe un huacal de este tipo en la lista.";
+            return;
+        }
+
+
+        EntradasHuacales.EntradasDetalle.Add(new DetallesHuacales
+        {
+            TipoId = Detalle.TipoId,
+            Cantidad = Detalle.Cantidad,
+            Precio = Detalle.Precio
+        });
+
+        Detalle = new DetallesHuacales(); 
+    }
+
+    private void EliminarDetalle(DetallesHuacales item)
+    {
+        EntradasHuacales.EntradasDetalle.Remove(item);
+        MensajeErrorDetalle = string.Empty;
+    }
+
+    private string ObtenerDescripcion(int id) => ListaTipos.FirstOrDefault(t => t.TipoId == id)?.Descripcion ?? "N/A";
+
     public async Task Guardar()
     {
+        if (EntradasHuacales.EntradasDetalle.Count == 0)
+        {
+            MensajeErrorDetalle = "Debe agregar al menos un huacal antes de guardar.";
+            return;
+        }
+
 
         if (await entradasHuacalesServices.Existe(EntradasHuacales))
         {
-            Mensajes = "Ya existe una entrada registrada para este cliente.";
+            MensajeErrorDetalle = "Ya existe una entrada con este nombre de cliente.";
             return;
         }
 
         var guardo = await entradasHuacalesServices.Guardar(EntradasHuacales);
-        if (guardo)
-        {
-            Volver();
-        }
-        else
-        {
-            Mensajes = "No se pudo guardar el registro.";
-        }
+        if (guardo) Volver();
     }
 
     public void Volver() => navigationManager.NavigateTo("/EntradaHuacales/Index");
