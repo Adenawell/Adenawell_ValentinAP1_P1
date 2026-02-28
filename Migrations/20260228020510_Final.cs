@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     /// <inheritdoc />
-    public partial class AgregandoTiposData : Migration
+    public partial class Final : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,10 +20,7 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                     IdEntrada = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Fecha = table.Column<DateOnly>(type: "date", nullable: false),
-                    NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TipoId = table.Column<int>(type: "int", nullable: false),
-                    Cantidad = table.Column<int>(type: "int", nullable: false),
-                    Precio = table.Column<double>(type: "float", nullable: false)
+                    NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,6 +41,34 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                     table.PrimaryKey("PK_TiposHuacales", x => x.TipoId);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "DetallesHuacales",
+                columns: table => new
+                {
+                    DetalleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdEntrada = table.Column<int>(type: "int", nullable: false),
+                    TipoId = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<int>(type: "int", nullable: false),
+                    Precio = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DetallesHuacales", x => x.DetalleId);
+                    table.ForeignKey(
+                        name: "FK_DetallesHuacales_EntradasHuacales_IdEntrada",
+                        column: x => x.IdEntrada,
+                        principalTable: "EntradasHuacales",
+                        principalColumn: "IdEntrada",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DetallesHuacales_TiposHuacales_TipoId",
+                        column: x => x.TipoId,
+                        principalTable: "TiposHuacales",
+                        principalColumn: "TipoId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "TiposHuacales",
                 columns: new[] { "TipoId", "Descripcion", "Existencia" },
@@ -53,11 +78,24 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                     { 2, "Verde", 0 },
                     { 3, "Amarillo", 0 }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DetallesHuacales_IdEntrada",
+                table: "DetallesHuacales",
+                column: "IdEntrada");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DetallesHuacales_TipoId",
+                table: "DetallesHuacales",
+                column: "TipoId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DetallesHuacales");
+
             migrationBuilder.DropTable(
                 name: "EntradasHuacales");
 
