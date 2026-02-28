@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260221193148_RecreacionCompleta")]
-    partial class RecreacionCompleta
+    [Migration("20260221202819_Final")]
+    partial class Final
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,52 +46,9 @@ namespace Adenawell_ValentinAP1_P1.Migrations
                     b.Property<double>("Precio")
                         .HasColumnType("float");
 
-                    b.Property<int>("TipoId")
-                        .HasColumnType("int");
-
                     b.HasKey("IdEntrada");
 
                     b.ToTable("EntradasHuacales");
-                });
-
-            modelBuilder.Entity("Adenawell_ValentinAP1_P1.Models.TiposHuacales", b =>
-                {
-                    b.Property<int>("TipoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipoId"));
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Existencia")
-                        .HasColumnType("int");
-
-                    b.HasKey("TipoId");
-
-                    b.ToTable("TiposHuacales");
-
-                    b.HasData(
-                        new
-                        {
-                            TipoId = 1,
-                            Descripcion = "Rojo",
-                            Existencia = 0
-                        },
-                        new
-                        {
-                            TipoId = 2,
-                            Descripcion = "Verde",
-                            Existencia = 0
-                        },
-                        new
-                        {
-                            TipoId = 3,
-                            Descripcion = "Amarillo",
-                            Existencia = 0
-                        });
                 });
 #pragma warning restore 612, 618
         }

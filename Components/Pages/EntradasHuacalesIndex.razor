@@ -112,7 +112,6 @@
     {
         var consulta = await entradasHuacalesServices.Listar(e => true);
 
-
         if (Desde.HasValue && Hasta.HasValue)
         {
             var fechaDesde = DateOnly.FromDateTime(Desde.Value);
