@@ -11,6 +11,7 @@ public class Contexto : DbContext
 
     public DbSet<EntradasHuacales> EntradasHuacales { get; set; }
     public DbSet<TiposHuacales> TiposHuacales { get; set; }
+    public DbSet<DetallesHuacales> DetallesHuacales { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
