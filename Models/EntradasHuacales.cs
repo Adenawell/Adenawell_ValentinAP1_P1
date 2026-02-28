@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Adenawell_ValentinAP1_P1.Models;
 
@@ -7,21 +8,13 @@ public class EntradasHuacales
     [Key]
     public int IdEntrada { get; set; }
 
-    [Required(ErrorMessage = "El campo es obligatorio")]
-    public DateOnly Fecha { get; set; }
+    [Required(ErrorMessage = "La fecha es obligatoria")]
+    public DateOnly Fecha { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
-    [Required(ErrorMessage = "El campo es obligatorio")]
+    [Required(ErrorMessage = "El nombre del cliente es obligatorio")]
     public string NombreCliente { get; set; } = string.Empty;
 
-
-    [Required(ErrorMessage = "Debe seleccionar un tipo de huacal")]
-    public int TipoId { get; set; }
-
-    [Required(ErrorMessage = "El campo es obligatorio")]
-    [Range(1, int.MaxValue, ErrorMessage = "Tiene que ser un valor positivo")]
-    public int? Cantidad { get; set; }
-
-    [Required(ErrorMessage = "El campo es obligatorio")]
-    [Range(1, double.MaxValue, ErrorMessage = "El campo debe ser un número positivo")]
-    public double? Precio { get; set; }
+    // Llave foranea relacion de uno a muchos con DetallesHuacales
+    [ForeignKey("IdEntrada")]
+    public ICollection<DetallesHuacales> EntradasDetalle { get; set; } = new List<DetallesHuacales>();
 }
