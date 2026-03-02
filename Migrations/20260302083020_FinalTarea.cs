@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     /// <inheritdoc />
-    public partial class Final : Migration
+    public partial class FinalTarea : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

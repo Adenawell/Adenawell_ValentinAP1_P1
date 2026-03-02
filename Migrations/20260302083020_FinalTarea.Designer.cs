@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Adenawell_ValentinAP1_P1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20260228020510_Final")]
-    partial class Final
+    [Migration("20260302083020_FinalTarea")]
+    partial class FinalTarea
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
