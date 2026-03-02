@@ -173,7 +173,19 @@
         Detalle = new DetallesHuacales();
     }
 
-    private void EliminarDetalle(DetallesHuacales item) => EntradasHuacales.EntradasDetalle.Remove(item);
+    private void EliminarDetalle(DetallesHuacales item)
+    {
+
+        Detalle.TipoId = item.TipoId;
+        Detalle.Cantidad = item.Cantidad;
+        Detalle.Precio = item.Precio;
+
+
+        EntradasHuacales.EntradasDetalle.Remove(item);
+    
+
+        Mensajes = string.Empty;
+    }
 
     private string ObtenerDescripcion(int id) => ListaTipos.FirstOrDefault(t => t.TipoId == id)?.Descripcion ?? "N/A";
 

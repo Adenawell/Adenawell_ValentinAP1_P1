@@ -168,6 +168,12 @@
 
     private void EliminarDetalle(DetallesHuacales item)
     {
+
+        Detalle.TipoId = item.TipoId;
+        Detalle.Cantidad = item.Cantidad;
+        Detalle.Precio = item.Precio;
+
+
         EntradasHuacales.EntradasDetalle.Remove(item);
         MensajeErrorDetalle = string.Empty;
     }
